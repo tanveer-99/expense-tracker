@@ -565,6 +565,13 @@ a { color: inherit; text-decoration: none; }
     line-height: 1.7;
 }
 
+.legal-body p a {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.legal-body p a:hover { text-decoration: underline; }
+
 .legal-back {
     text-align: center;
     font-size: 0.875rem;
