@@ -464,6 +464,26 @@ a { color: inherit; text-decoration: none; }
     margin-bottom: 1.25rem;
 }
 
+.flash-message {
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid;
+}
+
+.flash-error {
+    background: var(--danger-light);
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.flash-success {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
 .form-group { margin-bottom: 1.25rem; }
 
 .form-group label {
