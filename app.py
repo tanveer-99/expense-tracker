@@ -74,6 +74,7 @@ def login():
             return render_template("login.html")
 
         session["user_id"] = user["id"]
+        session["user_name"] = user["name"]
         return redirect(url_for("landing"))
 
     abort(405)
@@ -101,7 +102,50 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    user = {
+        "name": "Demo User",
+        "email": "demo@spendly.com",
+        "initials": "DU",
+        "member_since": "January 2025",
+    }
+
+    summary = {
+        "total_spent_display": "₹5,599.50",
+        "transaction_count": 8,
+        "top_category": "Shopping",
+    }
+
+    transactions = [
+        {"date": "2026-08-22", "description": "Restaurant", "category": "Food", "amount": 180.00},
+        {"date": "2026-08-19", "description": "Miscellaneous", "category": "Other", "amount": 250.00},
+        {"date": "2026-08-16", "description": "Clothing", "category": "Shopping", "amount": 2200.00},
+        {"date": "2026-08-13", "description": "Movie tickets", "category": "Entertainment", "amount": 599.00},
+        {"date": "2026-08-10", "description": "Pharmacy", "category": "Health", "amount": 300.00},
+        {"date": "2026-08-07", "description": "Electricity bill", "category": "Bills", "amount": 1500.00},
+        {"date": "2026-08-04", "description": "Cab fare", "category": "Transport", "amount": 120.50},
+        {"date": "2026-08-01", "description": "Groceries", "category": "Food", "amount": 450.00},
+    ]
+
+    category_breakdown = [
+        {"category": "Shopping", "amount": 2200.00, "percent": 40, "slug": "shopping"},
+        {"category": "Bills", "amount": 1500.00, "percent": 25, "slug": "bills"},
+        {"category": "Food", "amount": 630.00, "percent": 10, "slug": "food"},
+        {"category": "Entertainment", "amount": 599.00, "percent": 10, "slug": "entertainment"},
+        {"category": "Health", "amount": 300.00, "percent": 5, "slug": "health"},
+        {"category": "Other", "amount": 250.00, "percent": 5, "slug": "other"},
+        {"category": "Transport", "amount": 120.50, "percent": 5, "slug": "transport"},
+    ]
+
+    return render_template(
+        "profile.html",
+        user=user,
+        summary=summary,
+        transactions=transactions,
+        category_breakdown=category_breakdown,
+    )
 
 
 @app.route("/expenses/add")
