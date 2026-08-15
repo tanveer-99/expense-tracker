@@ -861,6 +861,72 @@ a { color: inherit; text-decoration: none; }
 .category-bar-entertainment { background: #8b6fd6; }
 .category-bar-shopping { background: #c25c7a; }
 
+.profile-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.filter-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.filter-preset-btn {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--ink-muted);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.filter-preset-btn:hover {
+    background: var(--paper-warm);
+}
+
+.filter-preset-active {
+    background: var(--accent);
+    color: var(--paper);
+    border-color: var(--accent);
+}
+
+.filter-custom-range {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-custom-range input[type="date"] {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: var(--paper-card);
+}
+
+.filter-apply-btn {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--paper-card);
+    color: var(--ink-muted);
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.filter-apply-btn:hover {
+    background: var(--paper-warm);
+}
+
 .bar-w-5 { width: 5%; }
 .bar-w-10 { width: 10%; }
 .bar-w-15 { width: 15%; }
@@ -894,6 +960,8 @@ a { color: inherit; text-decoration: none; }
 
     .profile-header { flex-direction: column; text-align: center; }
     .profile-bar-row { grid-template-columns: 80px 1fr 70px; gap: 0.6rem; }
+    .profile-filter-bar { flex-direction: column; align-items: stretch; }
+    .filter-custom-range { flex-wrap: wrap; }
 }
 
 @media (max-width: 600px) {

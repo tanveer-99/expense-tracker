@@ -1,4 +1,6 @@
+import calendar
 import sqlite3
+from datetime import date, datetime
 
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash
@@ -103,6 +105,68 @@ def logout():
 
 
 # ------------------------------------------------------------------ #
+# Date filter helpers                                                 #
+# ------------------------------------------------------------------ #
+
+def _parse_date(value):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def _months_before(d, months):
+    month_index = d.month - 1 - months
+    year = d.year + month_index // 12
+    month = month_index % 12 + 1
+    day = min(d.day, calendar.monthrange(year, month)[1])
+    return date(year, month, day)
+
+
+def _compute_presets():
+    today = date.today()
+    return {
+        "this_month": {
+            "date_from": today.replace(day=1).isoformat(),
+            "date_to": today.isoformat(),
+        },
+        "last_3_months": {
+            "date_from": _months_before(today, 3).isoformat(),
+            "date_to": today.isoformat(),
+        },
+        "last_6_months": {
+            "date_from": _months_before(today, 6).isoformat(),
+            "date_to": today.isoformat(),
+        },
+    }
+
+
+def _resolve_date_filter(args, presets):
+    date_from = _parse_date(args.get("date_from"))
+    date_to = _parse_date(args.get("date_to"))
+
+    if date_from and date_to and date_from > date_to:
+        flash("Start date must be before end date.", "error")
+        date_from = None
+        date_to = None
+
+    date_from_str = date_from.isoformat() if date_from else None
+    date_to_str = date_to.isoformat() if date_to else None
+
+    active_filter = "all_time"
+    if date_from_str and date_to_str:
+        active_filter = "custom"
+        for name, rng in presets.items():
+            if rng["date_from"] == date_from_str and rng["date_to"] == date_to_str:
+                active_filter = name
+                break
+
+    return date_from_str, date_to_str, active_filter
+
+
+# ------------------------------------------------------------------ #
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
 
@@ -121,14 +185,17 @@ def profile():
     initials = "".join(part[0] for part in user_row["name"].split()[:2]).upper()
     user = {**user_row, "initials": initials}
 
-    stats = get_summary_stats(user_id)
+    presets = _compute_presets()
+    date_from_str, date_to_str, active_filter = _resolve_date_filter(request.args, presets)
+
+    stats = get_summary_stats(user_id, date_from_str, date_to_str)
     summary = {
         "total_spent_display": f"₹{stats['total_spent']:,.2f}",
         "transaction_count": stats["transaction_count"],
         "top_category": stats["top_category"],
     }
 
-    transactions = get_recent_transactions(user_id)
+    transactions = get_recent_transactions(user_id, date_from=date_from_str, date_to=date_to_str)
 
     category_breakdown = [
         {
@@ -137,7 +204,7 @@ def profile():
             "percent": c["pct"],
             "slug": c["name"].lower(),
         }
-        for c in get_category_breakdown(user_id)
+        for c in get_category_breakdown(user_id, date_from=date_from_str, date_to=date_to_str)
     ]
 
     return render_template(
@@ -146,6 +213,10 @@ def profile():
         summary=summary,
         transactions=transactions,
         category_breakdown=category_breakdown,
+        presets=presets,
+        active_filter=active_filter,
+        date_from_value=date_from_str or "",
+        date_to_value=date_to_str or "",
     )
 
 
