@@ -53,13 +53,15 @@ def register():
             return render_template("register.html")
 
         try:
-            create_user(name, email, password)
+            user_id = create_user(name, email, password)
         except sqlite3.IntegrityError:
             flash("Email already registered.", "error")
             return render_template("register.html")
 
-        flash("Account created. Please sign in.", "success")
-        return redirect(url_for("login"))
+        session["user_id"] = user_id
+        session["user_name"] = name
+        flash("Account created. Welcome to Spendly!", "success")
+        return redirect(url_for("landing"))
 
     abort(405)
 
@@ -218,6 +220,14 @@ def profile():
         date_from_value=date_from_str or "",
         date_to_value=date_to_str or "",
     )
+
+
+@app.route("/analytics")
+def analytics():
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    return render_template("analytics.html")
 
 
 @app.route("/expenses/add")
