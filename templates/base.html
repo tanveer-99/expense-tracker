@@ -21,6 +21,9 @@
             <div class="nav-links">
                 {% if session.get('user_id') %}
                 <a href="{{ url_for('analytics') }}" class="{% if request.endpoint == 'analytics' %}nav-link-active{% endif %}">Analytics</a>
+                {% if request.endpoint != 'landing' %}
+                <a href="{{ url_for('add_expense') }}" class="{% if request.endpoint == 'add_expense' %}nav-link-active{% endif %}">Add Expense</a>
+                {% endif %}
                 {% if request.endpoint != 'profile' %}
                 <a href="{{ url_for('profile') }}">Profile</a>
                 {% endif %}
