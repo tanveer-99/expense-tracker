@@ -8,10 +8,12 @@ from werkzeug.security import check_password_hash
 from database.db import CATEGORIES, create_user, get_db, get_user_by_email, init_db, seed_db
 from database.queries import (
     get_category_breakdown,
+    get_expense_by_id,
     get_recent_transactions,
     get_summary_stats,
     get_user_by_id,
     insert_expense,
+    update_expense,
 )
 
 app = Flask(__name__)
@@ -291,9 +293,70 @@ def add_expense():
     abort(405)
 
 
-@app.route("/expenses/<int:id>/edit")
+@app.route("/expenses/<int:id>/edit", methods=["GET", "POST"])
 def edit_expense(id):
-    return "Edit expense — coming in Step 8"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    expense = get_expense_by_id(id, user_id)
+    if expense is None:
+        abort(404)
+
+    if request.method == "GET":
+        return render_template(
+            "edit_expense.html",
+            categories=CATEGORIES,
+            expense=expense,
+            amount=expense["amount"],
+            category=expense["category"],
+            date=expense["date"],
+            description=expense["description"] or "",
+        )
+
+    if request.method == "POST":
+        amount_raw = request.form.get("amount", "").strip()
+        category = request.form.get("category", "").strip()
+        date_raw = request.form.get("date", "").strip()
+        description_raw = request.form.get("description", "").strip()
+
+        def _render_error(message):
+            flash(message, "error")
+            return render_template(
+                "edit_expense.html",
+                categories=CATEGORIES,
+                expense=expense,
+                amount=amount_raw,
+                category=category,
+                date=date_raw,
+                description=description_raw,
+            )
+
+        try:
+            amount = float(amount_raw)
+        except ValueError:
+            return _render_error("Enter a valid amount.")
+
+        if amount <= 0:
+            return _render_error("Amount must be greater than 0.")
+
+        if category not in CATEGORIES:
+            return _render_error("Select a valid category.")
+
+        try:
+            datetime.strptime(date_raw, "%Y-%m-%d")
+        except ValueError:
+            return _render_error("Enter a valid date.")
+
+        if len(description_raw) > 200:
+            return _render_error("Description must be 200 characters or fewer.")
+
+        description = description_raw if description_raw else None
+
+        update_expense(id, user_id, amount, category, date_raw, description)
+        return redirect(url_for("profile"))
+
+    abort(405)
 
 
 @app.route("/expenses/<int:id>/delete")
