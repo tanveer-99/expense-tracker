@@ -280,6 +280,9 @@ def add_expense():
         except ValueError:
             return _render_error("Enter a valid date.")
 
+        if len(description_raw) > 200:
+            return _render_error("Description must be 200 characters or fewer.")
+
         description = description_raw if description_raw else None
 
         insert_expense(user_id, amount, category, date_raw, description)
