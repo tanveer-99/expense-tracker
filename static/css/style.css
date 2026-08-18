@@ -929,6 +929,22 @@ a { color: inherit; text-decoration: none; }
     background: var(--paper-warm);
 }
 
+.btn-delete {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--danger);
+    font-family: var(--font-body);
+    font-size: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.btn-delete:hover {
+    color: var(--danger);
+    background: var(--danger-light);
+}
+
 .bar-w-5 { width: 5%; }
 .bar-w-10 { width: 10%; }
 .bar-w-15 { width: 15%; }
